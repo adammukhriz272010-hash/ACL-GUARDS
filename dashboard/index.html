@@ -2,542 +2,472 @@
 <html lang="ms">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f766e">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="ACL-GUARD">
-<title>ACL-GUARD</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#030b1f">
+<title>ACL-GUARD Monitor</title>
 <style>
 :root{
-  --bg:#f1f5f4; --card:#ffffff; --text:#10201d; --muted:#5b6b68; --line:#dde5e3;
-  --brand:#0f766e; --brand-ink:#ffffff; --ok:#16a34a; --warn:#d97706; --bad:#dc2626;
-  --track:#e5ecea; --shadow:0 1px 3px rgba(0,0,0,.08);
+  --bg:#030b1f; --panel:#071634; --panel2:#0a1d44; --line:#1b3f86;
+  --blue:#2f8cff; --cyan:#5fd4ff; --text:#e8f1ff; --muted:#8aa3cc;
+  --ok:#2fe39a; --target:#2f8cff; --bad:#ff4d5e; --warn:#ffb547;
 }
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:#0b1312; --card:#14201e; --text:#e6f0ee; --muted:#93a5a1; --line:#24332f;
-    --brand:#14b8a6; --brand-ink:#04201c; --ok:#22c55e; --warn:#f59e0b; --bad:#f87171;
-    --track:#22302d; --shadow:none;
-  }
-}
-*{box-sizing:border-box}
-html,body{margin:0}
-body{
-  background:var(--bg); color:var(--text);
-  font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
-  -webkit-tap-highlight-color:transparent;
-}
-.wrap{max-width:560px;margin:0 auto;padding:12px 16px 32px}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 12px}
-h1{font-size:20px;margin:0;letter-spacing:.5px}
-.sub{color:var(--muted);font-size:12px}
-.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;
-  font-size:12px;font-weight:600;background:var(--track);color:var(--muted);white-space:nowrap}
-.pill i{width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block}
-.pill.on{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}
-.pill.demo{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
-.pill.off{background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
-.card h2{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:0 0 10px;font-weight:700}
-.gauge{position:relative;max-width:320px;margin:0 auto}
-.gauge svg{display:block;width:100%;height:auto}
-.readout{position:absolute;left:0;right:0;bottom:4%;text-align:center}
-.angle{font-size:56px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
-.angle small{font-size:24px;font-weight:700}
-.label{color:var(--muted);font-size:12px}
-.state{margin:10px auto 0;text-align:center;font-weight:800;font-size:16px;padding:8px;border-radius:10px;
-  background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}
-.state.bad{background:var(--bad);color:#fff}
-.state.err{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
-.meta{display:flex;justify-content:space-around;margin-top:12px;text-align:center}
-.meta b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
-canvas{display:block;width:100%;height:120px}
-.presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-button{font:inherit;border:0;cursor:pointer;border-radius:12px;padding:12px 10px;font-weight:700;
-  background:var(--track);color:var(--text);touch-action:manipulation}
-button:active{transform:scale(.98)}
-button.sel{background:var(--brand);color:var(--brand-ink)}
-button.primary{background:var(--brand);color:var(--brand-ink)}
-button.danger{background:var(--bad);color:#fff}
-button.ghost{background:transparent;color:var(--muted);padding:4px 8px;font-weight:600;font-size:13px}
-.presets button small{display:block;font-weight:500;font-size:12px;opacity:.85}
-.slider{display:flex;align-items:center;gap:12px;margin-top:14px}
-.slider input{flex:1;accent-color:var(--brand);height:28px}
-.slider output{min-width:52px;text-align:right;font-weight:800;font-size:18px;font-variant-numeric:tabular-nums}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px}
-.switch{position:relative;width:52px;height:30px;flex:none}
-.switch input{opacity:0;width:0;height:0;position:absolute}
-.switch span{position:absolute;inset:0;background:var(--track);border-radius:30px;transition:.2s}
-.switch span:before{content:"";position:absolute;width:24px;height:24px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 2px rgba(0,0,0,.3)}
-.switch input:checked+span{background:var(--brand)}
-.switch input:checked+span:before{transform:translateX(22px)}
-.hint{color:var(--muted);font-size:12px;margin-top:8px}
-.hist-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.hist-head h2{margin:0}
-ul{list-style:none;margin:0;padding:0}
-li{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-top:1px solid var(--line);font-size:14px}
-li:first-child{border-top:0}
-li .peak{color:var(--bad);font-weight:800;font-variant-numeric:tabular-nums}
-.empty{color:var(--muted);font-size:14px;padding:6px 0}
-.count{font-size:12px;color:var(--muted)}
-footer{color:var(--muted);font-size:12px;text-align:center;margin-top:16px}
-#flash{position:fixed;inset:0;pointer-events:none;background:var(--bad);opacity:0;z-index:5}
-body.alarm #flash{animation:flash .5s infinite alternate}
-@keyframes flash{from{opacity:0}to{opacity:.35}}
-#banner{position:fixed;left:12px;right:12px;top:calc(12px + env(safe-area-inset-top));z-index:6;display:none;
-  background:var(--bad);color:#fff;border-radius:14px;padding:14px;text-align:center;font-weight:800;font-size:18px;
-  box-shadow:0 6px 20px rgba(0,0,0,.3)}
-body.alarm #banner{display:block}
-#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);
-  background:#111;color:#fff;padding:10px 14px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .2s;z-index:7;pointer-events:none;max-width:90%}
-#toast.show{opacity:.92}
-@media (prefers-reduced-motion: reduce){body.alarm #flash{animation:none;opacity:.25}}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+body{min-height:100vh;background:
+  radial-gradient(ellipse 120% 60% at 50% -10%,#0d3a8a55,transparent 60%),
+  radial-gradient(ellipse 80% 40% at 50% 110%,#0d3a8a44,transparent 60%),var(--bg);
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.wrap{max-width:560px;margin:0 auto;padding:14px 14px 40px}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.brand{font-weight:900;font-style:italic;letter-spacing:.5px;font-size:24px;
+  background:linear-gradient(180deg,#fff,#9cc6ff);-webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 0 18px #2f8cff55}
+.brand small{display:block;font-size:10.5px;font-style:normal;font-weight:600;letter-spacing:2px;color:var(--muted);-webkit-text-fill-color:var(--muted)}
+.hright{display:flex;gap:8px;align-items:center}
+.pill{font-size:12px;font-weight:700;padding:6px 10px;border-radius:99px;border:1px solid var(--line);background:var(--panel);display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.pill.on .dot{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.pill.demo .dot{background:var(--warn);box-shadow:0 0 8px var(--warn)}
+.pill.off .dot{background:var(--bad)}
+.lang{font-size:12px;font-weight:800;padding:6px 9px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--cyan);cursor:pointer}
+.card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;
+  box-shadow:0 0 0 1px #2f8cff10 inset,0 8px 30px #00000055}
+.card h2{font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:10px;font-weight:800}
+/* hero */
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:6px;align-items:center}
+#leg{width:100%;height:auto;display:block}
+.big{font-size:64px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-2px}
+.big sup{font-size:28px;vertical-align:top;margin-left:2px;letter-spacing:0}
+.lbl{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:4px}
+.status{margin-top:10px;font-weight:800;font-size:14px;padding:8px 10px;border-radius:10px;text-align:center;border:1px solid}
+.status.ok{color:var(--ok);border-color:#2fe39a55;background:#2fe39a12}
+.status.target{color:var(--cyan);border-color:#5fd4ff55;background:#5fd4ff12}
+.status.bad{color:#fff;border-color:var(--bad);background:var(--bad);animation:pulse .6s infinite alternate}
+.limitline{margin-top:8px;font-size:12px;color:var(--muted)}
+.limitline b{color:var(--text)}
+@keyframes pulse{to{box-shadow:0 0 22px var(--bad)}}
+/* phases */
+.phases{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ph{border:1px solid var(--line);background:#06122b;border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;color:var(--text)}
+.ph .r{font-size:17px;font-weight:900}
+.ph .w{font-size:11.5px;color:var(--muted);margin-top:2px}
+.ph.sel{border-color:var(--blue);background:linear-gradient(180deg,#1557c9,#0b2f7a);box-shadow:0 0 16px #2f8cff66}
+.ph.sel .w{color:#d6e6ff}
+.custom{margin-top:12px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+.custom input{flex:1;accent-color:var(--blue)}
+.custom b{color:var(--text);min-width:42px;text-align:right}
+/* chart */
+canvas{width:100%;height:150px;display:block}
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.st{background:#06122b;border:1px solid var(--line);border-radius:12px;padding:10px 8px;text-align:center}
+.st .v{font-size:22px;font-weight:900;font-variant-numeric:tabular-nums}
+.st .k{font-size:11px;color:var(--muted);margin-top:2px;font-weight:600}
+/* buttons */
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+button.b{font:inherit;font-weight:800;font-size:14px;border-radius:12px;padding:13px 10px;border:1px solid var(--line);background:#06122b;color:var(--text);cursor:pointer}
+button.b:active{transform:scale(.98)}
+button.b.pri{background:linear-gradient(180deg,#2f8cff,#1450c4);border-color:#5fa8ff;box-shadow:0 0 18px #2f8cff55}
+button.b.full{grid-column:1/-1}
+.tog{display:flex;align-items:center;justify-content:space-between;padding:11px 2px;border-top:1px solid #1b3f8655;font-size:14px}
+.tog:first-of-type{border-top:0}
+.tog small{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
+.sw{position:relative;width:46px;height:26px;flex:none}
+.sw input{opacity:0;width:0;height:0}
+.sw span{position:absolute;inset:0;background:#132a57;border-radius:99px;transition:.2s;cursor:pointer}
+.sw span:before{content:"";position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.sw input:checked+span{background:var(--blue)}
+.sw input:checked+span:before{transform:translateX(20px)}
+/* log */
+#log{list-style:none;max-height:180px;overflow:auto;font-size:13px}
+#log li{display:flex;justify-content:space-between;padding:7px 2px;border-top:1px solid #1b3f8655}
+#log li:first-child{border-top:0}
+#log .t{color:var(--muted);font-variant-numeric:tabular-nums}
+#log .a{color:var(--bad);font-weight:800}
+.empty{color:var(--muted);font-size:13px;padding:4px 2px}
+.err{display:none;background:#3a0d16;border:1px solid var(--bad);color:#ffd5da;border-radius:12px;padding:10px 12px;font-size:13px;margin-bottom:12px}
+.note{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.45}
+footer{text-align:center;margin-top:18px;color:var(--muted);font-size:12px}
+footer q{display:block;font-style:italic;font-family:Georgia,serif;font-size:16px;color:#cfe0ff;margin-bottom:6px}
+/* alert overlay */
+#flash{position:fixed;inset:0;pointer-events:none;box-shadow:inset 0 0 0 0 var(--bad);transition:box-shadow .15s;z-index:20}
+#flash.on{box-shadow:inset 0 0 0 10px var(--bad),inset 0 0 120px #ff4d5e88}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:#0b2a63;border:1px solid var(--blue);color:#fff;padding:11px 16px;border-radius:12px;font-size:14px;font-weight:700;transition:transform .25s;z-index:30;max-width:90%;text-align:center}
+#toast.show{transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
 <div id="flash"></div>
-<div id="banner">⚠️ AMARAN! Lutut melebihi had<br><span style="font-weight:600;font-size:14px">WARNING – knee past the safe limit</span></div>
-<div id="toast"></div>
-
 <div class="wrap">
   <header>
-    <div>
-      <h1>ACL-GUARD</h1>
-      <div class="sub">Pendakap Lutut Pintar · Kumpulan Vanguard</div>
+    <div class="brand">ACL-GUARD<small data-i="sub">SMART KNEE SUPPORT</small></div>
+    <div class="hright">
+      <div class="pill off" id="conn"><span class="dot"></span><span id="connTxt">—</span></div>
+      <button class="lang" id="langBtn">EN</button>
     </div>
-    <span id="conn" class="pill off"><i></i><span>Menyambung…</span></span>
   </header>
 
+  <div class="err" id="err"></div>
+
   <section class="card">
-    <div class="gauge">
-      <svg viewBox="0 0 300 188" aria-hidden="true">
-        <path id="gTrack" fill="none" stroke="var(--track)" stroke-width="22" stroke-linecap="round"/>
-        <path id="gSafe"  fill="none" stroke="var(--ok)"  stroke-width="22" opacity=".35"/>
-        <path id="gDanger" fill="none" stroke="var(--bad)" stroke-width="22" opacity=".35"/>
-        <path id="gValue" fill="none" stroke="var(--ok)" stroke-width="22" stroke-linecap="round"/>
-        <line id="gLimit" stroke="var(--text)" stroke-width="3"/>
-        <text id="gLimitTxt" font-size="12" font-weight="700" fill="var(--text)" text-anchor="middle"></text>
-        <text x="25" y="186" font-size="11" fill="var(--muted)" text-anchor="middle">0°</text>
-        <text x="275" y="186" font-size="11" fill="var(--muted)" text-anchor="middle">150°</text>
+    <div class="hero">
+      <svg id="leg" viewBox="0 0 260 250" aria-label="knee angle">
+        <defs>
+          <radialGradient id="kg" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#5fd4ff"/><stop offset="1" stop-color="#1450c4"/></radialGradient>
+        </defs>
+        <path id="zSafe" fill="#2fe39a22" stroke="#2fe39a66"/>
+        <path id="zTarget" fill="#2f8cff33" stroke="#2f8cff88"/>
+        <path id="zBad" fill="#ff4d5e22" stroke="#ff4d5e66"/>
+        <path id="limLine" stroke="#ff4d5e" stroke-width="2.5" stroke-dasharray="5 4"/>
+        <text id="limTxt" fill="#ff8a95" font-size="12" font-weight="800"></text>
+        <line x1="100" y1="10" x2="100" y2="110" stroke="#cfe0ff" stroke-width="16" stroke-linecap="round"/>
+        <line id="shin" x1="100" y1="110" x2="100" y2="215" stroke="#cfe0ff" stroke-width="13" stroke-linecap="round"/>
+        <line id="foot" x1="100" y1="215" x2="70" y2="215" stroke="#cfe0ff" stroke-width="11" stroke-linecap="round"/>
+        <rect x="84" y="88" width="32" height="44" rx="9" fill="#0b1a3a" stroke="#5fd4ff" stroke-width="2"/>
+        <circle cx="100" cy="110" r="7" fill="url(#kg)"/>
       </svg>
-      <div class="readout">
-        <div class="angle"><span id="angle">--</span><small>°</small></div>
-        <div class="label">Sudut lutut / Knee angle</div>
+      <div>
+        <div class="lbl" data-i="kneeAngle">Sudut lutut</div>
+        <div class="big"><span id="ang">0</span><sup>°</sup></div>
+        <div class="limitline"><span data-i="safeRange">Julat selamat</span>: <b id="rangeTxt">0°–45°</b></div>
+        <div class="status ok" id="status" data-i="inSafe">Dalam julat selamat</div>
       </div>
-    </div>
-    <div id="state" class="state">SELAMAT / SAFE</div>
-    <div class="meta">
-      <div><span class="label">Had / Limit</span><b id="limTxt">--°</b></div>
-      <div><span class="label">Maks sesi / Session max</span><b id="maxTxt">0°</b></div>
-      <div><span class="label">Amaran hari ini</span><b id="todayTxt">0</b></div>
     </div>
   </section>
 
   <section class="card">
-    <h2>Graf 30 saat / Last 30 s</h2>
+    <h2 data-i="phaseTitle">Fasa pemulihan</h2>
+    <div class="phases" id="phases"></div>
+    <div class="custom"><span data-i="customLimit">Had sendiri</span><input type="range" id="lim" min="20" max="120" step="5" value="45"><b id="limVal">45°</b></div>
+    <p class="note" data-i="phaseNote">Ikut arahan doktor atau fisioterapis anda. Pendakap akan bergetar jika lutut dibengkokkan melebihi had.</p>
+  </section>
+
+  <section class="card">
+    <h2 data-i="liveChart">Graf masa nyata (30 s)</h2>
     <canvas id="chart"></canvas>
   </section>
 
   <section class="card">
-    <h2>Fasa pemulihan / Recovery week</h2>
-    <div class="presets">
-      <button data-lim="45">Minggu 1<small>0–45°</small></button>
-      <button data-lim="70">Minggu 2<small>45–70°</small></button>
-      <button data-lim="90">Minggu 3<small>70–90°</small></button>
+    <h2 data-i="session">Sesi latihan</h2>
+    <div class="stats">
+      <div class="st"><div class="v" id="sMax">0°</div><div class="k" data-i="maxAngle">Sudut maks</div></div>
+      <div class="st"><div class="v" id="sReps">0</div><div class="k" data-i="reps">Ulangan</div></div>
+      <div class="st"><div class="v" id="sWarn">0</div><div class="k" data-i="warnings">Amaran</div></div>
+      <div class="st"><div class="v" id="sSafe">100%</div><div class="k" data-i="timeSafe">Masa selamat</div></div>
+      <div class="st"><div class="v" id="sTime">0:00</div><div class="k" data-i="duration">Tempoh</div></div>
+      <div class="st"><div class="v" id="sAvg">0°</div><div class="k" data-i="avgPeak">Purata puncak</div></div>
     </div>
-    <div class="slider">
-      <input id="limSlider" type="range" min="10" max="150" step="1" value="45" aria-label="Had sudut / Angle limit">
-      <output id="limOut">45°</output>
+    <div class="btns" style="margin-top:10px">
+      <button class="b full" id="resetBtn" data-i="newSession">Mula sesi baharu</button>
     </div>
-    <div class="hint">Had disimpan dalam pendakap. / The limit is saved in the brace.</div>
   </section>
 
   <section class="card">
-    <h2>Kawalan / Controls</h2>
-    <div class="row">
-      <button id="btnZero" class="primary">Kalibrasi (kaki lurus)</button>
-      <button id="btnVib" class="danger">Getar pendakap</button>
+    <h2 data-i="control">Kawalan pendakap</h2>
+    <div class="btns">
+      <button class="b pri" id="vibBtn" data-i="testVib">Getar pendakap</button>
+      <button class="b" id="zeroBtn" data-i="calibrate">Kalibrasi (kaki lurus)</button>
     </div>
-    <div class="toggle">
-      <div>
-        <div style="font-weight:700">Getaran automatik</div>
-        <div class="label">Brace vibrates by itself past the limit</div>
-      </div>
-      <label class="switch"><input id="autoSw" type="checkbox" checked><span></span></label>
+    <div style="margin-top:8px">
+      <label class="tog"><div><span data-i="autoVib">Getaran automatik</span><small data-i="autoVibSub">Pendakap bergetar bila melebihi had</small></div><span class="sw"><input type="checkbox" id="autoVib" checked><span></span></span></label>
+      <label class="tog"><div><span data-i="phoneAlert">Amaran telefon</span><small data-i="phoneAlertSub">Bunyi &amp; getaran pada telefon ini</small></div><span class="sw"><input type="checkbox" id="phoneAlert" checked><span></span></span></label>
     </div>
-    <div class="toggle">
-      <div>
-        <div style="font-weight:700">Bunyi amaran telefon</div>
-        <div class="label">Beep on this phone</div>
-      </div>
-      <label class="switch"><input id="soundSw" type="checkbox" checked><span></span></label>
-    </div>
-    <div class="hint">Luruskan kaki sepenuhnya sebelum kalibrasi. / Straighten the leg fully before calibrating.</div>
+    <p class="note" data-i="calNote">Kalibrasi: luruskan kaki sepenuhnya, kemudian tekan butang kalibrasi.</p>
   </section>
 
   <section class="card">
-    <div class="hist-head">
-      <h2>Sejarah amaran <span class="count" id="histCount"></span></h2>
-      <button class="ghost" id="btnClear">Padam / Clear</button>
-    </div>
-    <ul id="hist"></ul>
+    <h2 data-i="history">Sejarah amaran</h2>
+    <ul id="log"></ul>
   </section>
 
-  <footer>
-    ⚠️ Prototaip sekolah, bukan peranti perubatan yang diperakui. Had sudut mesti daripada doktor atau ahli fisioterapi.<br>
-    School prototype, not a certified medical device.<br>
-    SMK Darulaman Heights 1
-  </footer>
+  <footer><q data-i="motto">Gerakan terkawal, pemulihan lebih selamat.</q>SMK DARULAMAN HEIGHTS 1 · KUMPULAN VANGUARD</footer>
 </div>
+<div id="toast"></div>
 
 <script>
 (function(){
 "use strict";
-var $ = function(id){ return document.getElementById(id); };
-var G_MAX = 150;                 // gauge full scale (degrees)
-var HIST_KEY = "aclguard.history";
-var SET_KEY  = "aclguard.sound";
+/* ---------------- text (BM / EN) ---------------- */
+var T={
+ ms:{sub:"PENDAKAP LUTUT PINTAR",kneeAngle:"Sudut lutut",safeRange:"Julat selamat",inSafe:"Dalam julat selamat",inTarget:"Dalam zon sasaran",over:"MELEBIHI HAD!",
+  phaseTitle:"Fasa pemulihan",customLimit:"Had sendiri",phaseNote:"Ikut arahan doktor atau fisioterapis anda. Pendakap akan bergetar jika lutut dibengkokkan melebihi had.",
+  liveChart:"Graf masa nyata (30 s)",session:"Sesi latihan",maxAngle:"Sudut maks",reps:"Ulangan",warnings:"Amaran",timeSafe:"Masa selamat",duration:"Tempoh",avgPeak:"Purata puncak",
+  newSession:"Mula sesi baharu",control:"Kawalan pendakap",testVib:"Getar pendakap",calibrate:"Kalibrasi (kaki lurus)",autoVib:"Getaran automatik",autoVibSub:"Pendakap bergetar bila melebihi had",
+  phoneAlert:"Amaran telefon",phoneAlertSub:"Bunyi & getaran pada telefon ini",calNote:"Kalibrasi: luruskan kaki sepenuhnya, kemudian tekan butang kalibrasi.",
+  history:"Sejarah amaran",noWarn:"Tiada amaran lagi. Bagus!",motto:"Gerakan terkawal, pemulihan lebih selamat.",
+  week:"Minggu",early:"Awal",mid:"Tengah",late:"Akhir",custom:"Sendiri",
+  connected:"Bersambung",demo:"Mod demo",offline:"Terputus",connecting:"Menyambung…",
+  vibSent:"Arahan getaran dihantar ke pendakap",vibDemo:"Demo: pendakap akan bergetar",zeroSent:"Kalibrasi dihantar — kaki lurus = 0°",
+  notConn:"Pendakap tidak bersambung",limitSet:"Had ditetapkan",reset:"Sesi baharu dimulakan",exceeded:"Melebihi had",
+  demoHint:"Sambung ke WiFi \"ACL-GUARD\" dan buka 192.168.4.1 untuk data sebenar. Tekan butang status untuk mod demo.",
+  toDemo:"Mod demo dihidupkan",toLive:"Cuba sambung ke pendakap…",
+  e_thigh:"Sensor paha (0x68) tidak dikesan. Semak pendawaian.",e_shin:"Sensor betis (0x69) tidak dikesan. Semak pendawaian (AD0 → 3.3V)."},
+ en:{sub:"SMART KNEE SUPPORT",kneeAngle:"Knee angle",safeRange:"Safe range",inSafe:"Within safe range",inTarget:"In target zone",over:"OVER LIMIT!",
+  phaseTitle:"Recovery phase",customLimit:"Custom limit",phaseNote:"Follow your doctor's or physiotherapist's instructions. The brace vibrates if the knee bends past the limit.",
+  liveChart:"Live chart (30 s)",session:"Training session",maxAngle:"Max angle",reps:"Reps",warnings:"Warnings",timeSafe:"Time safe",duration:"Duration",avgPeak:"Avg peak",
+  newSession:"Start new session",control:"Brace control",testVib:"Vibrate brace",calibrate:"Calibrate (leg straight)",autoVib:"Auto vibration",autoVibSub:"Brace vibrates when over limit",
+  phoneAlert:"Phone alert",phoneAlertSub:"Sound & vibration on this phone",calNote:"Calibrate: straighten the leg fully, then press the calibrate button.",
+  history:"Warning history",noWarn:"No warnings yet. Great!",motto:"Gerakan terkawal, pemulihan lebih selamat.",
+  week:"Week",early:"Early",mid:"Middle",late:"Late",custom:"Custom",
+  connected:"Connected",demo:"Demo mode",offline:"Disconnected",connecting:"Connecting…",
+  vibSent:"Vibrate command sent to brace",vibDemo:"Demo: brace would vibrate",zeroSent:"Calibration sent — straight leg = 0°",
+  notConn:"Brace not connected",limitSet:"Limit set",reset:"New session started",exceeded:"Over limit",
+  demoHint:"Join the \"ACL-GUARD\" WiFi and open 192.168.4.1 for real data. Tap the status button for demo mode.",
+  toDemo:"Demo mode on",toLive:"Trying to connect to brace…",
+  e_thigh:"Thigh sensor (0x68) not found. Check wiring.",e_shin:"Shin sensor (0x69) not found. Check wiring (AD0 → 3.3V)."}
+};
+var store={get:function(k,d){try{var v=localStorage.getItem("aclg_"+k);return v===null?d:JSON.parse(v);}catch(e){return d;}},
+           set:function(k,v){try{localStorage.setItem("aclg_"+k,JSON.stringify(v));}catch(e){}}};
+var lang=store.get("lang","ms");
+function t(k){return (T[lang]&&T[lang][k])||T.ms[k]||k;}
+function $(id){return document.getElementById(id);}
 
-// ---------- state ----------
-var st = { a:0, lim:45, w:0, auto:1, err:"" };
-var ws = null, connected = false, everConnected = false, failCount = 0, lastMsg = 0;
-var demo = null;
-var sessionMax = 0;
-var points = [];                 // [time ms, angle]
-var currentEvent = null;
-var history = loadHistory();
-var limitDragging = false, limitSentAt = 0;
+/* ---------------- phases (from poster) ---------------- */
+var PHASES=[{w:1,s:"early",min:0,max:45},{w:2,s:"mid",min:45,max:70},{w:3,s:"late",min:70,max:90}];
+var phase=store.get("phase",0);           // index, or -1 for custom
+var limit=store.get("limit",45);
+var target=[0,45];
+var syncHold=0;                            // after we change a setting, wait before taking the brace's value
 
-// ---------- storage ----------
-function loadHistory(){
-  try { var h = JSON.parse(localStorage.getItem(HIST_KEY) || "[]"); return Array.isArray(h) ? h : []; }
-  catch(e){ return []; }
-}
-function saveHistory(){
-  try { localStorage.setItem(HIST_KEY, JSON.stringify(history.slice(0, 100))); } catch(e){}
-}
-try { $("soundSw").checked = localStorage.getItem(SET_KEY) !== "0"; } catch(e){}
+/* ---------------- state ---------------- */
+var mode="connecting";                    // live | demo | offline | connecting
+var ws=null, wsTimer=null, lastMsg=0;
+var angle=0, warn=false, autoVib=store.get("autoVib",true), phoneAlert=store.get("phoneAlert",true);
+var S; function newSession(){S={start:Date.now(),max:0,reps:0,warns:0,safeN:0,n:0,peaks:[],inRep:false,peak:0,log:[]};}
+newSession();
+var hist=[];                              // [ms, angle] for chart
 
-// ---------- toast ----------
-var toastTimer;
-function toast(msg){
-  var t = $("toast"); t.textContent = msg; t.classList.add("show");
-  clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 2200);
+/* ---------------- i18n render ---------------- */
+function applyLang(){
+  document.documentElement.lang=lang;
+  var els=document.querySelectorAll("[data-i]");
+  for(var i=0;i<els.length;i++){els[i].textContent=t(els[i].getAttribute("data-i"));}
+  $("langBtn").textContent=lang==="ms"?"EN":"BM";
+  renderPhases();renderConn();renderLog();updateStatus();
+}
+$("langBtn").onclick=function(){lang=lang==="ms"?"en":"ms";store.set("lang",lang);applyLang();};
+
+/* ---------------- phases UI ---------------- */
+function renderPhases(){
+  var h="";
+  for(var i=0;i<PHASES.length;i++){var p=PHASES[i];
+    h+='<div class="ph'+(phase===i?' sel':'')+'" data-p="'+i+'"><div class="r">'+p.min+'°–'+p.max+'°</div><div class="w">'+t("week")+' '+p.w+' ('+t(p.s)+')</div></div>';}
+  $("phases").innerHTML=h;
+  var b=$("phases").querySelectorAll(".ph");
+  for(var j=0;j<b.length;j++){b[j].onclick=function(){selectPhase(+this.getAttribute("data-p"));};}
+}
+function selectPhase(i,quiet){
+  phase=i;var p=PHASES[i];setLimit(p.max,[p.min,p.max],quiet);renderPhases();
+}
+function setLimit(v,tg,quiet,fromBrace){
+  limit=v;target=tg||[Math.round(v*0.6),v];
+  store.set("limit",limit);store.set("phase",phase);
+  $("lim").value=v;$("limVal").textContent=v+"°";
+  $("rangeTxt").textContent="0°–"+v+"°";
+  drawZones();if(!fromBrace&&send("LIMIT:"+v))syncHold=Date.now()+1500;
+  if(!quiet)toast(t("limitSet")+": "+v+"°");
+}
+$("lim").oninput=function(){$("limVal").textContent=this.value+"°";};
+$("lim").onchange=function(){phase=-1;renderPhases();setLimit(+this.value);};
+
+/* ---------------- leg drawing ---------------- */
+var CX=100,CY=110,R=95,SHIN=105;
+function pt(a,r){a=a*Math.PI/180;return [CX+r*Math.sin(a),CY+r*Math.cos(a)];}
+function sector(a0,a1){
+  if(a1<=a0)return "";
+  var p0=pt(a0,R),p1=pt(a1,R);
+  return "M"+CX+","+CY+" L"+p0[0].toFixed(1)+","+p0[1].toFixed(1)+" A"+R+","+R+" 0 "+(a1-a0>180?1:0)+",0 "+p1[0].toFixed(1)+","+p1[1].toFixed(1)+" Z";
+}
+function drawZones(){
+  var tmin=Math.min(target[0],limit);
+  $("zSafe").setAttribute("d",sector(0,tmin));
+  $("zTarget").setAttribute("d",sector(tmin,limit));
+  $("zBad").setAttribute("d",sector(limit,140));
+  var e=pt(limit,R+8);$("limLine").setAttribute("d","M"+CX+","+CY+" L"+e[0].toFixed(1)+","+e[1].toFixed(1));
+  var tp=pt(limit,R+22);var lt=$("limTxt");lt.setAttribute("x",(tp[0]-10).toFixed(1));lt.setAttribute("y",(tp[1]+4).toFixed(1));lt.textContent=limit+"°";
+}
+function drawLeg(a){
+  var c=Math.max(0,Math.min(150,a));
+  var e=pt(c,SHIN);var sh=$("shin");sh.setAttribute("x2",e[0].toFixed(1));sh.setAttribute("y2",e[1].toFixed(1));
+  var r=c*Math.PI/180, fx=-Math.cos(r), fy=Math.sin(r);
+  var f=$("foot");f.setAttribute("x1",e[0].toFixed(1));f.setAttribute("y1",e[1].toFixed(1));
+  f.setAttribute("x2",(e[0]+fx*30).toFixed(1));f.setAttribute("y2",(e[1]+fy*30).toFixed(1));
+  var col=a>limit?"#ff8a95":"#cfe0ff";sh.setAttribute("stroke",col);f.setAttribute("stroke",col);
 }
 
-// ---------- gauge ----------
-var CX = 150, CY = 160, R = 125;
-function pt(deg){                // deg 0..G_MAX -> point on the half circle (left to right)
-  var t = Math.PI * (1 - Math.max(0, Math.min(G_MAX, deg)) / G_MAX);
-  return [CX + R * Math.cos(t), CY - R * Math.sin(t)];
-}
-function arc(a0, a1){
-  if (a1 - a0 < 0.01) return "";
-  var p0 = pt(a0), p1 = pt(a1);
-  return "M" + p0[0].toFixed(1) + " " + p0[1].toFixed(1) + " A" + R + " " + R + " 0 0 1 " + p1[0].toFixed(1) + " " + p1[1].toFixed(1);
-}
-$("gTrack").setAttribute("d", arc(0, G_MAX));
-
-function drawGauge(){
-  var lim = Math.min(st.lim, G_MAX);
-  $("gSafe").setAttribute("d", arc(0, lim));
-  $("gDanger").setAttribute("d", arc(lim, G_MAX));
-  var a = st.err ? 0 : st.a;
-  var v = $("gValue");
-  v.setAttribute("d", arc(0, Math.max(a, 0.5)));
-  v.setAttribute("stroke", a > st.lim ? "var(--bad)" : (a > st.lim * 0.85 ? "var(--warn)" : "var(--ok)"));
-  var t = Math.PI * (1 - lim / G_MAX);
-  var l = $("gLimit");
-  l.setAttribute("x1", (CX + (R - 16) * Math.cos(t)).toFixed(1));
-  l.setAttribute("y1", (CY - (R - 16) * Math.sin(t)).toFixed(1));
-  l.setAttribute("x2", (CX + (R + 16) * Math.cos(t)).toFixed(1));
-  l.setAttribute("y2", (CY - (R + 16) * Math.sin(t)).toFixed(1));
-  var lt = $("gLimitTxt");
-  lt.setAttribute("x", (CX + (R + 26) * Math.cos(t)).toFixed(1));
-  lt.setAttribute("y", (CY - (R + 26) * Math.sin(t) + 4).toFixed(1));
-  lt.textContent = st.lim + "°";
+/* ---------------- status ---------------- */
+function updateStatus(){
+  var s=$("status");
+  if(warn){s.className="status bad";s.textContent=t("over");}
+  else if(angle>=target[0]&&target[0]>0){s.className="status target";s.textContent=t("inTarget");}
+  else{s.className="status ok";s.textContent=t("inSafe");}
 }
 
-// ---------- chart ----------
-var cv = $("chart"), ctx = cv.getContext("2d");
-function cssVar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+/* ---------------- incoming sample ---------------- */
+function onSample(a,w){
+  angle=a;$("ang").textContent=Math.round(a);drawLeg(a);
+  var now=Date.now();hist.push([now,a]);while(hist.length&&now-hist[0][0]>30000)hist.shift();
+  // stats
+  S.n++;if(a<=limit)S.safeN++;if(a>S.max)S.max=a;
+  var up=target[0]>0?target[0]:Math.max(15,limit*0.6), down=Math.max(8,up*0.3);
+  if(!S.inRep&&a>=up){S.inRep=true;S.peak=a;}
+  if(S.inRep){if(a>S.peak)S.peak=a;if(a<down){S.inRep=false;S.reps++;S.peaks.push(S.peak);if(S.peaks.length>200)S.peaks.shift();}}
+  if(w&&!warn)onWarn(a);
+  if(!w&&warn)$("flash").className="";
+  warn=w;updateStatus();
+}
+function onWarn(a){
+  S.warns++;S.log.unshift([Date.now(),a]);if(S.log.length>50)S.log.pop();renderLog();
+  $("flash").className="on";
+  if(phoneAlert){
+    try{if(navigator.vibrate)navigator.vibrate([250,120,250]);}catch(e){}
+    beep();
+  }
+  if(mode==="demo"&&autoVib)toast(t("vibDemo"));
+}
+function renderLog(){
+  var l=$("log");
+  if(!S.log.length){l.innerHTML='<li class="empty">'+t("noWarn")+'</li>';return;}
+  var h="";for(var i=0;i<S.log.length;i++){var d=new Date(S.log[i][0]);
+    h+='<li><span class="t">'+pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds())+'</span><span>'+t("exceeded")+'</span><span class="a">'+Math.round(S.log[i][1])+'°</span></li>';}
+  l.innerHTML=h;
+}
+function pad(n){return (n<10?"0":"")+n;}
+function renderStats(){
+  $("sMax").textContent=Math.round(S.max)+"°";$("sReps").textContent=S.reps;$("sWarn").textContent=S.warns;
+  $("sSafe").textContent=(S.n?Math.round(100*S.safeN/S.n):100)+"%";
+  var sec=Math.floor((Date.now()-S.start)/1000);$("sTime").textContent=Math.floor(sec/60)+":"+pad(sec%60);
+  var avg=0;for(var i=0;i<S.peaks.length;i++)avg+=S.peaks[i];$("sAvg").textContent=(S.peaks.length?Math.round(avg/S.peaks.length):0)+"°";
+}
+$("resetBtn").onclick=function(){unlockAudio();newSession();hist=[];renderLog();renderStats();toast(t("reset"));};
+
+/* ---------------- chart ---------------- */
+var cv=$("chart"),cx=cv.getContext("2d");
 function drawChart(){
-  var dpr = window.devicePixelRatio || 1;
-  var w = cv.clientWidth, h = cv.clientHeight;
-  if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)){
-    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
-  }
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.clearRect(0, 0, w, h);
-  var now = Date.now(), span = 30000;
-  var top = Math.max(G_MAX * 0.6, st.lim + 20);
-  var padL = 30, padB = 4, ph = h - padB - 6;
-  var y = function(v){ return 6 + ph * (1 - Math.min(v, top) / top); };
-  var x = function(t){ return padL + (w - padL) * (1 - (now - t) / span); };
-  ctx.font = "10px sans-serif"; ctx.fillStyle = cssVar("--muted"); ctx.strokeStyle = cssVar("--line"); ctx.lineWidth = 1;
-  [0, Math.round(top / 2), Math.round(top)].forEach(function(v){
-    ctx.beginPath(); ctx.moveTo(padL, y(v)); ctx.lineTo(w, y(v)); ctx.stroke();
-    ctx.fillText(v + "°", 0, y(v) + 3);
-  });
-  ctx.strokeStyle = cssVar("--bad"); ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(padL, y(st.lim)); ctx.lineTo(w, y(st.lim)); ctx.stroke(); ctx.setLineDash([]);
-  if (points.length > 1){
-    ctx.strokeStyle = cssVar("--brand"); ctx.lineWidth = 2; ctx.lineJoin = "round";
-    ctx.beginPath();
-    for (var i = 0; i < points.length; i++){
-      var px = x(points[i][0]), py = y(points[i][1]);
-      if (i) ctx.lineTo(px, py); else ctx.moveTo(px, py);
-    }
-    ctx.stroke();
-  }
+  var dpr=window.devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;
+  if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);}
+  cx.setTransform(dpr,0,0,dpr,0,0);cx.clearRect(0,0,w,h);
+  var L=30,top=6,bot=h-18,maxA=Math.max(120,limit+20);
+  function y(a){return bot-(a/maxA)*(bot-top);}
+  cx.font="10px sans-serif";cx.fillStyle="#8aa3cc";cx.strokeStyle="#1b3f8666";cx.lineWidth=1;
+  for(var g=0;g<=maxA;g+=30){cx.beginPath();cx.moveTo(L,y(g));cx.lineTo(w,y(g));cx.stroke();cx.fillText(g+"°",2,y(g)+3);}
+  cx.fillText("-30s",L,h-4);cx.fillText("0s",w-14,h-4);
+  // zones
+  cx.fillStyle="#ff4d5e18";cx.fillRect(L,top,w-L,y(limit)-top);
+  if(target[0]>0){cx.fillStyle="#2f8cff18";cx.fillRect(L,y(limit),w-L,y(target[0])-y(limit));}
+  cx.strokeStyle="#ff4d5e";cx.setLineDash([5,4]);cx.beginPath();cx.moveTo(L,y(limit));cx.lineTo(w,y(limit));cx.stroke();cx.setLineDash([]);
+  if(hist.length<2)return;
+  var now=Date.now();function x(tm){return L+(1-(now-tm)/30000)*(w-L);}
+  var grad=cx.createLinearGradient(0,top,0,bot);grad.addColorStop(0,"#5fd4ff");grad.addColorStop(1,"#2f8cff");
+  cx.strokeStyle=grad;cx.lineWidth=2.2;cx.lineJoin="round";cx.beginPath();
+  for(var i=0;i<hist.length;i++){var X=x(hist[i][0]),Y=y(Math.min(maxA,hist[i][1]));if(i)cx.lineTo(X,Y);else cx.moveTo(X,Y);}
+  cx.stroke();
+  // over-limit segments in red
+  cx.strokeStyle="#ff4d5e";cx.lineWidth=2.6;
+  for(var j=1;j<hist.length;j++){if(hist[j][1]>limit&&hist[j-1][1]>limit){cx.beginPath();cx.moveTo(x(hist[j-1][0]),y(Math.min(maxA,hist[j-1][1])));cx.lineTo(x(hist[j][0]),y(Math.min(maxA,hist[j][1])));cx.stroke();}}
 }
 
-// ---------- sound / vibration ----------
-var audioCtx = null;
-function unlockAudio(){
-  if (!audioCtx){
-    var AC = window.AudioContext || window.webkitAudioContext;
-    if (AC) try { audioCtx = new AC(); } catch(e){}
-  }
-  if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
-}
-document.addEventListener("touchstart", unlockAudio, { passive: true });
-document.addEventListener("click", unlockAudio);
+/* ---------------- sound ---------------- */
+var actx=null;
+function unlockAudio(){try{if(!actx){var A=window.AudioContext||window.webkitAudioContext;if(A)actx=new A();}if(actx&&actx.state==="suspended")actx.resume();}catch(e){}}
 function beep(){
-  if (!$("soundSw").checked || !audioCtx) return;
-  try {
-    var o = audioCtx.createOscillator(), g = audioCtx.createGain(), t = audioCtx.currentTime;
-    o.type = "square"; o.frequency.value = 880;
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(0.25, t + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
-    o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t + 0.2);
-  } catch(e){}
+  if(!actx)return;try{
+  [0,0.22].forEach(function(d){var o=actx.createOscillator(),g=actx.createGain();o.type="square";o.frequency.value=880;
+    g.gain.setValueAtTime(0.0001,actx.currentTime+d);g.gain.exponentialRampToValueAtTime(0.15,actx.currentTime+d+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,actx.currentTime+d+0.16);o.connect(g);g.connect(actx.destination);o.start(actx.currentTime+d);o.stop(actx.currentTime+d+0.18);});
+  }catch(e){}
 }
-function phoneVibrate(){
-  if (navigator.vibrate) try { navigator.vibrate([200, 100, 200]); } catch(e){}
-}
-var alarmTimer = null, alarmTick = 0;
-function startAlarm(){
-  if (alarmTimer) return;
-  alarmTick = 0; beep(); phoneVibrate();
-  alarmTimer = setInterval(function(){
-    alarmTick++; beep();
-    if (alarmTick % 3 === 0) phoneVibrate();
-  }, 500);
-}
-function stopAlarm(){
-  if (alarmTimer){ clearInterval(alarmTimer); alarmTimer = null; }
-  if (navigator.vibrate) try { navigator.vibrate(0); } catch(e){}
-}
+document.addEventListener("pointerdown",unlockAudio,{once:false,passive:true});
 
-// ---------- history ----------
-function fmtTime(ts){
-  var d = new Date(ts), now = new Date();
-  var p = function(n){ return (n < 10 ? "0" : "") + n; };
-  var t = p(d.getHours()) + ":" + p(d.getMinutes()) + ":" + p(d.getSeconds());
-  return d.toDateString() === now.toDateString() ? t : p(d.getDate()) + "/" + p(d.getMonth() + 1) + " " + t;
-}
-function renderHistory(){
-  var ul = $("hist"); ul.innerHTML = "";
-  var today = new Date().toDateString(), nToday = 0;
-  history.forEach(function(e){ if (new Date(e.t).toDateString() === today) nToday++; });
-  $("todayTxt").textContent = nToday;
-  $("histCount").textContent = history.length ? "(" + history.length + ")" : "";
-  if (!history.length){
-    var li = document.createElement("li"); li.className = "empty";
-    li.textContent = "Tiada amaran lagi. / No warnings yet."; ul.appendChild(li); return;
-  }
-  history.slice(0, 50).forEach(function(e){
-    var li = document.createElement("li");
-    var left = document.createElement("span");
-    left.textContent = fmtTime(e.t) + " · had " + e.lim + "°" + (e.dur ? " · " + (e.dur / 1000).toFixed(1) + " s" : "");
-    var right = document.createElement("span"); right.className = "peak";
-    right.textContent = Math.round(e.peak) + "°";
-    li.appendChild(left); li.appendChild(right); ul.appendChild(li);
-  });
-}
-$("btnClear").onclick = function(){
-  if (!history.length) return;
-  if (confirm("Padam semua sejarah amaran? / Clear all warning history?")){
-    history = []; saveHistory(); renderHistory();
-  }
-};
+/* ---------------- toast ---------------- */
+var tt=null;function toast(m){var e=$("toast");e.textContent=m;e.className="show";clearTimeout(tt);tt=setTimeout(function(){e.className="";},2200);}
 
-// ---------- UI update ----------
-function setConn(kind, text){
-  var c = $("conn"); c.className = "pill " + kind; c.lastChild.textContent = text;
-}
-function markPresets(){
-  var btns = document.querySelectorAll(".presets button");
-  for (var i = 0; i < btns.length; i++) btns[i].classList.toggle("sel", +btns[i].dataset.lim === st.lim);
-}
-function render(){
-  $("angle").textContent = st.err ? "--" : Math.round(st.a);
-  $("limTxt").textContent = st.lim + "°";
-  $("maxTxt").textContent = Math.round(sessionMax) + "°";
-  var s = $("state");
-  if (st.err){ s.className = "state err"; s.textContent = "⚠️ " + st.err; }
-  else if (st.w){ s.className = "state bad"; s.textContent = "AMARAN! / WARNING – melebihi had"; }
-  else { s.className = "state"; s.textContent = "SELAMAT / SAFE"; }
-  if (!limitDragging && Date.now() - limitSentAt > 800){
-    $("limSlider").value = st.lim; $("limOut").textContent = st.lim + "°";
-  }
-  $("autoSw").checked = !!st.auto;
-  markPresets();
-  drawGauge();
-}
-
-function onData(d){
-  lastMsg = Date.now();
-  var prevW = st.w;
-  st.a = +d.a || 0; st.lim = d.lim | 0; st.w = d.w ? 1 : 0; st.auto = d.auto ? 1 : 0; st.err = d.err || "";
-  if (!st.err){
-    points.push([lastMsg, st.a]);
-    if (st.a > sessionMax) sessionMax = st.a;
-  }
-  while (points.length && lastMsg - points[0][0] > 31000) points.shift();
-
-  if (st.w && !prevW){
-    currentEvent = { t: lastMsg, peak: st.a, lim: st.lim, dur: 0 };
-    history.unshift(currentEvent); saveHistory(); renderHistory();
-    startAlarm();
-  } else if (st.w && currentEvent){
-    if (st.a > currentEvent.peak) currentEvent.peak = st.a;
-  } else if (!st.w && prevW){
-    if (currentEvent){ currentEvent.dur = lastMsg - currentEvent.t; saveHistory(); renderHistory(); }
-    currentEvent = null;
-    stopAlarm();
-  }
-  document.body.classList.toggle("alarm", !!st.w);
-  render();
-}
-
-// ---------- commands ----------
-function send(cmd){
-  if (demo){ demo.command(cmd); return true; }
-  if (ws && ws.readyState === 1){ ws.send(cmd); return true; }
-  toast("Tidak bersambung ke pendakap / Not connected");
-  return false;
-}
-function setLimit(v){
-  v = Math.max(10, Math.min(150, Math.round(v)));
-  st.lim = v; limitSentAt = Date.now();
-  $("limSlider").value = v; $("limOut").textContent = v + "°";
-  markPresets(); drawGauge();
-  if (send("LIMIT:" + v)) toast("Had ditetapkan " + v + "° / Limit set");
-}
-var presetBtns = document.querySelectorAll(".presets button");
-for (var i = 0; i < presetBtns.length; i++){
-  presetBtns[i].onclick = function(){ setLimit(+this.dataset.lim); };
-}
-var slider = $("limSlider");
-slider.addEventListener("input", function(){ limitDragging = true; $("limOut").textContent = slider.value + "°"; });
-slider.addEventListener("change", function(){ limitDragging = false; setLimit(+slider.value); });
-$("btnZero").onclick = function(){
-  if (send("ZERO")){ sessionMax = 0; toast("Dikalibrasi: kaki lurus = 0° / Calibrated"); }
-};
-$("btnVib").onclick = function(){ if (send("VIB:700")) toast("Pendakap bergetar / Brace vibrating"); };
-$("autoSw").onchange = function(){
-  st.auto = this.checked ? 1 : 0;
-  send("AUTO:" + st.auto);
-};
-$("soundSw").onchange = function(){
-  try { localStorage.setItem(SET_KEY, this.checked ? "1" : "0"); } catch(e){}
-};
-
-// ---------- WebSocket ----------
-var params = new URLSearchParams(location.search);
-var isFile = location.protocol === "file:" || !location.hostname;
-var forceDemo = params.has("demo");
-var wsHost = params.get("ip") || location.hostname || "192.168.4.1";
-
+/* ---------------- device connection (WebSocket :81) ---------------- */
+function canReachDevice(){return location.protocol==="http:";}
 function connect(){
-  if (isFile || forceDemo) return;
-  try { ws = new WebSocket("ws://" + wsHost + ":81/"); }
-  catch(e){ onFail(); return; }
-  var opened = false;
-  ws.onopen = function(){
-    opened = true; connected = true; everConnected = true; failCount = 0; lastMsg = Date.now();
-    stopDemo();
-    setConn("on", "Bersambung / Connected");
-  };
-  ws.onmessage = function(ev){
-    try { onData(JSON.parse(ev.data)); } catch(e){}
-  };
-  ws.onclose = function(){
-    connected = false; ws = null;
-    if (!opened) onFail();
-    else setConn("off", "Terputus / Disconnected");
-    setTimeout(connect, 2000);
-  };
-  ws.onerror = function(){ try { ws && ws.close(); } catch(e){} };
+  if(mode==="demo")return;
+  clearTimeout(wsTimer);
+  if(!canReachDevice()){setMode("offline");return;}
+  setMode("connecting");
+  try{ws=new WebSocket("ws://"+(location.hostname||"192.168.4.1")+":81/");}catch(e){retry();return;}
+  // The brace keeps the real limit; on connect we read it from the brace instead of overwriting it
+  ws.onopen=function(){setMode("live");lastMsg=Date.now();syncHold=0;};
+  ws.onmessage=function(ev){lastMsg=Date.now();var d;try{d=JSON.parse(ev.data);}catch(e){return;}
+    syncFromBrace(d);
+    if(typeof d.a==="number")onSample(d.a,!!d.w);
+    showErr(d.err||"");};
+  ws.onclose=function(){if(mode==="live"||mode==="connecting")setMode("offline");retry();};
+  ws.onerror=function(){try{ws.close();}catch(e){}};
 }
-function onFail(){
-  failCount++;
-  // Not served by the brace (e.g. opened on a computer) and nothing answers: show demo
-  if (!everConnected && wsHost !== "192.168.4.1" && failCount >= 1) startDemo();
-  else if (!demo) setConn("off", "Tiada sambungan / No connection");
+// Show the limit / auto setting the brace is really using (it may have been set from another phone)
+function syncFromBrace(d){
+  if(Date.now()<syncHold)return;
+  if(typeof d.lim==="number"&&Math.round(d.lim)!==limit){
+    var v=Math.round(d.lim),i=-1;
+    for(var k=0;k<PHASES.length;k++)if(PHASES[k].max===v)i=k;
+    phase=i;
+    setLimit(v,i>=0?[PHASES[i].min,v]:null,true,true);
+    renderPhases();
+  }
+  if(typeof d.auto==="number"&&(d.auto===1)!==autoVib){
+    autoVib=d.auto===1;$("autoVib").checked=autoVib;store.set("autoVib",autoVib);
+  }
 }
-// If data stops (brace switched off / out of range), show it
+function retry(){clearTimeout(wsTimer);if(mode!=="demo")wsTimer=setTimeout(connect,2000);}
+function send(m){if(ws&&ws.readyState===1){ws.send(m);return true;}return false;}
+function showErr(code){var e=$("err");if(code){e.style.display="block";e.textContent=t("e_"+code);}else e.style.display="none";}
+setInterval(function(){if(mode==="live"&&Date.now()-lastMsg>3000){try{ws.close();}catch(e){}}},1000);
+
+function setMode(m){mode=m;renderConn();}
+function renderConn(){
+  var p=$("conn");p.className="pill "+(mode==="live"?"on":mode==="demo"?"demo":"off");
+  $("connTxt").textContent=t(mode==="live"?"connected":mode==="demo"?"demo":mode==="connecting"?"connecting":"offline");
+  if(mode==="offline")showHint();
+}
+var hinted=false;function showHint(){if(!hinted){hinted=true;toast(t("demoHint"));}}
+$("conn").onclick=function(){
+  unlockAudio();
+  if(mode==="demo"){if(canReachDevice()){mode="offline";toast(t("toLive"));connect();}return;}
+  if(mode!=="live"){clearTimeout(wsTimer);try{if(ws)ws.close();}catch(e){}setMode("demo");toast(t("toDemo"));}
+};
+
+/* ---------------- buttons ---------------- */
+$("vibBtn").onclick=function(){unlockAudio();
+  if(mode==="demo"){toast(t("vibDemo"));try{if(navigator.vibrate)navigator.vibrate(500);}catch(e){}return;}
+  toast(send("VIB:700")?t("vibSent"):t("notConn"));};
+$("zeroBtn").onclick=function(){unlockAudio();
+  if(mode==="demo"){demoOffset=demoRaw;toast(t("zeroSent"));return;}
+  toast(send("ZERO")?t("zeroSent"):t("notConn"));};
+$("autoVib").checked=autoVib;$("phoneAlert").checked=phoneAlert;
+$("autoVib").onchange=function(){autoVib=this.checked;store.set("autoVib",autoVib);if(send("AUTO:"+(autoVib?1:0)))syncHold=Date.now()+1500;};
+$("phoneAlert").onchange=function(){phoneAlert=this.checked;store.set("phoneAlert",phoneAlert);unlockAudio();};
+
+/* ---------------- demo simulator ---------------- */
+var demoT=0,demoRaw=0,demoOffset=0,demoOverSince=0,demoWarn=false;
 setInterval(function(){
-  if (connected && Date.now() - lastMsg > 3000){
-    setConn("off", "Tiada data / No data");
-    try { ws.close(); } catch(e){}
-  }
-}, 1000);
+  if(mode!=="demo")return;
+  demoT+=0.05;
+  // slow flex/extend cycles, every 4th cycle goes past the limit
+  var cyc=Math.floor(demoT/4), ph=(demoT%4)/4;
+  var peak=(cyc%4===3)?limit+14:Math.max(20,limit-8+(cyc%3)*3);
+  var s=Math.sin(Math.PI*ph);demoRaw=peak*s*s+ (Math.random()-0.5)*1.2+demoOffset*0;
+  var a=Math.max(0,demoRaw-demoOffset);
+  // same rule as firmware: over limit for 300 ms -> warn; clear 3° below limit
+  var now=Date.now();
+  if(a>limit){if(!demoOverSince)demoOverSince=now;if(now-demoOverSince>300)demoWarn=true;}
+  else{demoOverSince=0;if(a<limit-3)demoWarn=false;}
+  onSample(a,demoWarn);
+},50);
 
-// ---------- demo mode (no brace) ----------
-function Demo(){
-  var t0 = Date.now(), zero = 0, raw = 0;
-  var lim = 45, auto = 1, warn = 0, overSince = 0;
-  this.command = function(c){
-    if (c.indexOf("LIMIT:") === 0){ lim = Math.max(5, Math.min(150, parseInt(c.slice(6), 10) || 45)); warn = 0; overSince = 0; }
-    else if (c === "ZERO"){ zero = raw; }
-    else if (c.indexOf("AUTO:") === 0){ auto = c.slice(5) === "1" ? 1 : 0; }
-    emit();
-  };
-  function emit(){
-    var a = Math.abs(raw - zero);
-    onData({ a: Math.round(a * 10) / 10, lim: lim, w: warn, auto: auto, err: "" });
-  }
-  this.timer = setInterval(function(){
-    var now = Date.now(), s = (now - t0) / 1000;
-    // slow walking-like bends, with a deeper bend every ~12 s
-    var bend = 18 + 16 * Math.sin(s * 1.3) + 6 * Math.sin(s * 3.1);
-    var cycle = s % 12;
-    if (cycle > 8 && cycle < 10) bend += 40 * Math.sin((cycle - 8) / 2 * Math.PI);
-    raw = Math.max(0, bend + (Math.random() - 0.5) * 1.5) + 4;
-    var a = Math.abs(raw - zero);
-    if (a > lim){
-      if (!overSince) overSince = now;
-      if (!warn && now - overSince >= 300) warn = 1;
-    } else {
-      overSince = 0;
-      if (warn && a < lim - 3) warn = 0;
-    }
-    emit();
-  }, 50);
-}
-function startDemo(){
-  if (demo) return;
-  demo = new Demo();
-  setConn("demo", "Mod demo / Demo mode");
-}
-function stopDemo(){
-  if (!demo) return;
-  clearInterval(demo.timer); demo = null;
-  document.body.classList.remove("alarm"); stopAlarm();
-}
+/* ---------------- loops & init ---------------- */
+setInterval(renderStats,500);
+(function frame(){drawChart();requestAnimationFrame(frame);})();
+window.addEventListener("resize",drawChart);
 
-// ---------- start ----------
-renderHistory();
-render();
-(function loop(){ drawChart(); setTimeout(function(){ requestAnimationFrame(loop); }, 100); })();
-if (isFile || forceDemo) startDemo(); else connect();
+applyLang();
+if(phase>=0&&phase<PHASES.length)selectPhase(phase,true);else setLimit(limit,null,true);
+drawLeg(0);
+if(canReachDevice())connect();else setMode("demo");
 })();
 </script>
 </body>
