@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ACL-GUARD">
+<title>ACL-GUARD</title>
+<style>
+:root{
+  --bg:#f1f5f4; --card:#ffffff; --text:#10201d; --muted:#5b6b68; --line:#dde5e3;
+  --brand:#0f766e; --brand-ink:#ffffff; --ok:#16a34a; --warn:#d97706; --bad:#dc2626;
+  --track:#e5ecea; --shadow:0 1px 3px rgba(0,0,0,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0b1312; --card:#14201e; --text:#e6f0ee; --muted:#93a5a1; --line:#24332f;
+    --brand:#14b8a6; --brand-ink:#04201c; --ok:#22c55e; --warn:#f59e0b; --bad:#f87171;
+    --track:#22302d; --shadow:none;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bg); color:var(--text);
+  font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  -webkit-tap-highlight-color:transparent;
+}
+.wrap{max-width:560px;margin:0 auto;padding:12px 16px 32px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 12px}
+h1{font-size:20px;margin:0;letter-spacing:.5px}
+.sub{color:var(--muted);font-size:12px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;
+  font-size:12px;font-weight:600;background:var(--track);color:var(--muted);white-space:nowrap}
+.pill i{width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block}
+.pill.on{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}
+.pill.demo{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
+.pill.off{background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.card h2{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:0 0 10px;font-weight:700}
+.gauge{position:relative;max-width:320px;margin:0 auto}
+.gauge svg{display:block;width:100%;height:auto}
+.readout{position:absolute;left:0;right:0;bottom:4%;text-align:center}
+.angle{font-size:56px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.angle small{font-size:24px;font-weight:700}
+.label{color:var(--muted);font-size:12px}
+.state{margin:10px auto 0;text-align:center;font-weight:800;font-size:16px;padding:8px;border-radius:10px;
+  background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}
+.state.bad{background:var(--bad);color:#fff}
+.state.err{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.meta{display:flex;justify-content:space-around;margin-top:12px;text-align:center}
+.meta b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
+canvas{display:block;width:100%;height:120px}
+.presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+button{font:inherit;border:0;cursor:pointer;border-radius:12px;padding:12px 10px;font-weight:700;
+  background:var(--track);color:var(--text);touch-action:manipulation}
+button:active{transform:scale(.98)}
+button.sel{background:var(--brand);color:var(--brand-ink)}
+button.primary{background:var(--brand);color:var(--brand-ink)}
+button.danger{background:var(--bad);color:#fff}
+button.ghost{background:transparent;color:var(--muted);padding:4px 8px;font-weight:600;font-size:13px}
+.presets button small{display:block;font-weight:500;font-size:12px;opacity:.85}
+.slider{display:flex;align-items:center;gap:12px;margin-top:14px}
+.slider input{flex:1;accent-color:var(--brand);height:28px}
+.slider output{min-width:52px;text-align:right;font-weight:800;font-size:18px;font-variant-numeric:tabular-nums}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px}
+.switch{position:relative;width:52px;height:30px;flex:none}
+.switch input{opacity:0;width:0;height:0;position:absolute}
+.switch span{position:absolute;inset:0;background:var(--track);border-radius:30px;transition:.2s}
+.switch span:before{content:"";position:absolute;width:24px;height:24px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 2px rgba(0,0,0,.3)}
+.switch input:checked+span{background:var(--brand)}
+.switch input:checked+span:before{transform:translateX(22px)}
+.hint{color:var(--muted);font-size:12px;margin-top:8px}
+.hist-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.hist-head h2{margin:0}
+ul{list-style:none;margin:0;padding:0}
+li{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-top:1px solid var(--line);font-size:14px}
+li:first-child{border-top:0}
+li .peak{color:var(--bad);font-weight:800;font-variant-numeric:tabular-nums}
+.empty{color:var(--muted);font-size:14px;padding:6px 0}
+.count{font-size:12px;color:var(--muted)}
+footer{color:var(--muted);font-size:12px;text-align:center;margin-top:16px}
+#flash{position:fixed;inset:0;pointer-events:none;background:var(--bad);opacity:0;z-index:5}
+body.alarm #flash{animation:flash .5s infinite alternate}
+@keyframes flash{from{opacity:0}to{opacity:.35}}
+#banner{position:fixed;left:12px;right:12px;top:calc(12px + env(safe-area-inset-top));z-index:6;display:none;
+  background:var(--bad);color:#fff;border-radius:14px;padding:14px;text-align:center;font-weight:800;font-size:18px;
+  box-shadow:0 6px 20px rgba(0,0,0,.3)}
+body.alarm #banner{display:block}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);
+  background:#111;color:#fff;padding:10px 14px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .2s;z-index:7;pointer-events:none;max-width:90%}
+#toast.show{opacity:.92}
+@media (prefers-reduced-motion: reduce){body.alarm #flash{animation:none;opacity:.25}}
+</style>
+</head>
+<body>
+<div id="flash"></div>
+<div id="banner">⚠️ AMARAN! Lutut melebihi had<br><span style="font-weight:600;font-size:14px">WARNING – knee past the safe limit</span></div>
+<div id="toast"></div>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>ACL-GUARD</h1>
+      <div class="sub">Pendakap Lutut Pintar · Kumpulan Vanguard</div>
+    </div>
+    <span id="conn" class="pill off"><i></i><span>Menyambung…</span></span>
+  </header>
+
+  <section class="card">
+    <div class="gauge">
+      <svg viewBox="0 0 300 188" aria-hidden="true">
+        <path id="gTrack" fill="none" stroke="var(--track)" stroke-width="22" stroke-linecap="round"/>
+        <path id="gSafe"  fill="none" stroke="var(--ok)"  stroke-width="22" opacity=".35"/>
+        <path id="gDanger" fill="none" stroke="var(--bad)" stroke-width="22" opacity=".35"/>
+        <path id="gValue" fill="none" stroke="var(--ok)" stroke-width="22" stroke-linecap="round"/>
+        <line id="gLimit" stroke="var(--text)" stroke-width="3"/>
+        <text id="gLimitTxt" font-size="12" font-weight="700" fill="var(--text)" text-anchor="middle"></text>
+        <text x="25" y="186" font-size="11" fill="var(--muted)" text-anchor="middle">0°</text>
+        <text x="275" y="186" font-size="11" fill="var(--muted)" text-anchor="middle">150°</text>
+      </svg>
+      <div class="readout">
+        <div class="angle"><span id="angle">--</span><small>°</small></div>
+        <div class="label">Sudut lutut / Knee angle</div>
+      </div>
+    </div>
+    <div id="state" class="state">SELAMAT / SAFE</div>
+    <div class="meta">
+      <div><span class="label">Had / Limit</span><b id="limTxt">--°</b></div>
+      <div><span class="label">Maks sesi / Session max</span><b id="maxTxt">0°</b></div>
+      <div><span class="label">Amaran hari ini</span><b id="todayTxt">0</b></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Graf 30 saat / Last 30 s</h2>
+    <canvas id="chart"></canvas>
+  </section>
+
+  <section class="card">
+    <h2>Fasa pemulihan / Recovery week</h2>
+    <div class="presets">
+      <button data-lim="45">Minggu 1<small>0–45°</small></button>
+      <button data-lim="70">Minggu 2<small>45–70°</small></button>
+      <button data-lim="90">Minggu 3<small>70–90°</small></button>
+    </div>
+    <div class="slider">
+      <input id="limSlider" type="range" min="10" max="150" step="1" value="45" aria-label="Had sudut / Angle limit">
+      <output id="limOut">45°</output>
+    </div>
+    <div class="hint">Had disimpan dalam pendakap. / The limit is saved in the brace.</div>
+  </section>
+
+  <section class="card">
+    <h2>Kawalan / Controls</h2>
+    <div class="row">
+      <button id="btnZero" class="primary">Kalibrasi (kaki lurus)</button>
+      <button id="btnVib" class="danger">Getar pendakap</button>
+    </div>
+    <div class="toggle">
+      <div>
+        <div style="font-weight:700">Getaran automatik</div>
+        <div class="label">Brace vibrates by itself past the limit</div>
+      </div>
+      <label class="switch"><input id="autoSw" type="checkbox" checked><span></span></label>
+    </div>
+    <div class="toggle">
+      <div>
+        <div style="font-weight:700">Bunyi amaran telefon</div>
+        <div class="label">Beep on this phone</div>
+      </div>
+      <label class="switch"><input id="soundSw" type="checkbox" checked><span></span></label>
+    </div>
+    <div class="hint">Luruskan kaki sepenuhnya sebelum kalibrasi. / Straighten the leg fully before calibrating.</div>
+  </section>
+
+  <section class="card">
+    <div class="hist-head">
+      <h2>Sejarah amaran <span class="count" id="histCount"></span></h2>
+      <button class="ghost" id="btnClear">Padam / Clear</button>
+    </div>
+    <ul id="hist"></ul>
+  </section>
+
+  <footer>
+    ⚠️ Prototaip sekolah, bukan peranti perubatan yang diperakui. Had sudut mesti daripada doktor atau ahli fisioterapi.<br>
+    School prototype, not a certified medical device.<br>
+    SMK Darulaman Heights 1
+  </footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+var $ = function(id){ return document.getElementById(id); };
+var G_MAX = 150;                 // gauge full scale (degrees)
+var HIST_KEY = "aclguard.history";
+var SET_KEY  = "aclguard.sound";
+
+// ---------- state ----------
+var st = { a:0, lim:45, w:0, auto:1, err:"" };
+var ws = null, connected = false, everConnected = false, failCount = 0, lastMsg = 0;
+var demo = null;
+var sessionMax = 0;
+var points = [];                 // [time ms, angle]
+var currentEvent = null;
+var history = loadHistory();
+var limitDragging = false, limitSentAt = 0;
+
+// ---------- storage ----------
+function loadHistory(){
+  try { var h = JSON.parse(localStorage.getItem(HIST_KEY) || "[]"); return Array.isArray(h) ? h : []; }
+  catch(e){ return []; }
+}
+function saveHistory(){
+  try { localStorage.setItem(HIST_KEY, JSON.stringify(history.slice(0, 100))); } catch(e){}
+}
+try { $("soundSw").checked = localStorage.getItem(SET_KEY) !== "0"; } catch(e){}
+
+// ---------- toast ----------
+var toastTimer;
+function toast(msg){
+  var t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 2200);
+}
+
+// ---------- gauge ----------
+var CX = 150, CY = 160, R = 125;
+function pt(deg){                // deg 0..G_MAX -> point on the half circle (left to right)
+  var t = Math.PI * (1 - Math.max(0, Math.min(G_MAX, deg)) / G_MAX);
+  return [CX + R * Math.cos(t), CY - R * Math.sin(t)];
+}
+function arc(a0, a1){
+  if (a1 - a0 < 0.01) return "";
+  var p0 = pt(a0), p1 = pt(a1);
+  return "M" + p0[0].toFixed(1) + " " + p0[1].toFixed(1) + " A" + R + " " + R + " 0 0 1 " + p1[0].toFixed(1) + " " + p1[1].toFixed(1);
+}
+$("gTrack").setAttribute("d", arc(0, G_MAX));
+
+function drawGauge(){
+  var lim = Math.min(st.lim, G_MAX);
+  $("gSafe").setAttribute("d", arc(0, lim));
+  $("gDanger").setAttribute("d", arc(lim, G_MAX));
+  var a = st.err ? 0 : st.a;
+  var v = $("gValue");
+  v.setAttribute("d", arc(0, Math.max(a, 0.5)));
+  v.setAttribute("stroke", a > st.lim ? "var(--bad)" : (a > st.lim * 0.85 ? "var(--warn)" : "var(--ok)"));
+  var t = Math.PI * (1 - lim / G_MAX);
+  var l = $("gLimit");
+  l.setAttribute("x1", (CX + (R - 16) * Math.cos(t)).toFixed(1));
+  l.setAttribute("y1", (CY - (R - 16) * Math.sin(t)).toFixed(1));
+  l.setAttribute("x2", (CX + (R + 16) * Math.cos(t)).toFixed(1));
+  l.setAttribute("y2", (CY - (R + 16) * Math.sin(t)).toFixed(1));
+  var lt = $("gLimitTxt");
+  lt.setAttribute("x", (CX + (R + 26) * Math.cos(t)).toFixed(1));
+  lt.setAttribute("y", (CY - (R + 26) * Math.sin(t) + 4).toFixed(1));
+  lt.textContent = st.lim + "°";
+}
+
+// ---------- chart ----------
+var cv = $("chart"), ctx = cv.getContext("2d");
+function cssVar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+function drawChart(){
+  var dpr = window.devicePixelRatio || 1;
+  var w = cv.clientWidth, h = cv.clientHeight;
+  if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)){
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  var now = Date.now(), span = 30000;
+  var top = Math.max(G_MAX * 0.6, st.lim + 20);
+  var padL = 30, padB = 4, ph = h - padB - 6;
+  var y = function(v){ return 6 + ph * (1 - Math.min(v, top) / top); };
+  var x = function(t){ return padL + (w - padL) * (1 - (now - t) / span); };
+  ctx.font = "10px sans-serif"; ctx.fillStyle = cssVar("--muted"); ctx.strokeStyle = cssVar("--line"); ctx.lineWidth = 1;
+  [0, Math.round(top / 2), Math.round(top)].forEach(function(v){
+    ctx.beginPath(); ctx.moveTo(padL, y(v)); ctx.lineTo(w, y(v)); ctx.stroke();
+    ctx.fillText(v + "°", 0, y(v) + 3);
+  });
+  ctx.strokeStyle = cssVar("--bad"); ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(padL, y(st.lim)); ctx.lineTo(w, y(st.lim)); ctx.stroke(); ctx.setLineDash([]);
+  if (points.length > 1){
+    ctx.strokeStyle = cssVar("--brand"); ctx.lineWidth = 2; ctx.lineJoin = "round";
+    ctx.beginPath();
+    for (var i = 0; i < points.length; i++){
+      var px = x(points[i][0]), py = y(points[i][1]);
+      if (i) ctx.lineTo(px, py); else ctx.moveTo(px, py);
+    }
+    ctx.stroke();
+  }
+}
+
+// ---------- sound / vibration ----------
+var audioCtx = null;
+function unlockAudio(){
+  if (!audioCtx){
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) try { audioCtx = new AC(); } catch(e){}
+  }
+  if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+}
+document.addEventListener("touchstart", unlockAudio, { passive: true });
+document.addEventListener("click", unlockAudio);
+function beep(){
+  if (!$("soundSw").checked || !audioCtx) return;
+  try {
+    var o = audioCtx.createOscillator(), g = audioCtx.createGain(), t = audioCtx.currentTime;
+    o.type = "square"; o.frequency.value = 880;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.25, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+    o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t + 0.2);
+  } catch(e){}
+}
+function phoneVibrate(){
+  if (navigator.vibrate) try { navigator.vibrate([200, 100, 200]); } catch(e){}
+}
+var alarmTimer = null, alarmTick = 0;
+function startAlarm(){
+  if (alarmTimer) return;
+  alarmTick = 0; beep(); phoneVibrate();
+  alarmTimer = setInterval(function(){
+    alarmTick++; beep();
+    if (alarmTick % 3 === 0) phoneVibrate();
+  }, 500);
+}
+function stopAlarm(){
+  if (alarmTimer){ clearInterval(alarmTimer); alarmTimer = null; }
+  if (navigator.vibrate) try { navigator.vibrate(0); } catch(e){}
+}
+
+// ---------- history ----------
+function fmtTime(ts){
+  var d = new Date(ts), now = new Date();
+  var p = function(n){ return (n < 10 ? "0" : "") + n; };
+  var t = p(d.getHours()) + ":" + p(d.getMinutes()) + ":" + p(d.getSeconds());
+  return d.toDateString() === now.toDateString() ? t : p(d.getDate()) + "/" + p(d.getMonth() + 1) + " " + t;
+}
+function renderHistory(){
+  var ul = $("hist"); ul.innerHTML = "";
+  var today = new Date().toDateString(), nToday = 0;
+  history.forEach(function(e){ if (new Date(e.t).toDateString() === today) nToday++; });
+  $("todayTxt").textContent = nToday;
+  $("histCount").textContent = history.length ? "(" + history.length + ")" : "";
+  if (!history.length){
+    var li = document.createElement("li"); li.className = "empty";
+    li.textContent = "Tiada amaran lagi. / No warnings yet."; ul.appendChild(li); return;
+  }
+  history.slice(0, 50).forEach(function(e){
+    var li = document.createElement("li");
+    var left = document.createElement("span");
+    left.textContent = fmtTime(e.t) + " · had " + e.lim + "°" + (e.dur ? " · " + (e.dur / 1000).toFixed(1) + " s" : "");
+    var right = document.createElement("span"); right.className = "peak";
+    right.textContent = Math.round(e.peak) + "°";
+    li.appendChild(left); li.appendChild(right); ul.appendChild(li);
+  });
+}
+$("btnClear").onclick = function(){
+  if (!history.length) return;
+  if (confirm("Padam semua sejarah amaran? / Clear all warning history?")){
+    history = []; saveHistory(); renderHistory();
+  }
+};
+
+// ---------- UI update ----------
+function setConn(kind, text){
+  var c = $("conn"); c.className = "pill " + kind; c.lastChild.textContent = text;
+}
+function markPresets(){
+  var btns = document.querySelectorAll(".presets button");
+  for (var i = 0; i < btns.length; i++) btns[i].classList.toggle("sel", +btns[i].dataset.lim === st.lim);
+}
+function render(){
+  $("angle").textContent = st.err ? "--" : Math.round(st.a);
+  $("limTxt").textContent = st.lim + "°";
+  $("maxTxt").textContent = Math.round(sessionMax) + "°";
+  var s = $("state");
+  if (st.err){ s.className = "state err"; s.textContent = "⚠️ " + st.err; }
+  else if (st.w){ s.className = "state bad"; s.textContent = "AMARAN! / WARNING – melebihi had"; }
+  else { s.className = "state"; s.textContent = "SELAMAT / SAFE"; }
+  if (!limitDragging && Date.now() - limitSentAt > 800){
+    $("limSlider").value = st.lim; $("limOut").textContent = st.lim + "°";
+  }
+  $("autoSw").checked = !!st.auto;
+  markPresets();
+  drawGauge();
+}
+
+function onData(d){
+  lastMsg = Date.now();
+  var prevW = st.w;
+  st.a = +d.a || 0; st.lim = d.lim | 0; st.w = d.w ? 1 : 0; st.auto = d.auto ? 1 : 0; st.err = d.err || "";
+  if (!st.err){
+    points.push([lastMsg, st.a]);
+    if (st.a > sessionMax) sessionMax = st.a;
+  }
+  while (points.length && lastMsg - points[0][0] > 31000) points.shift();
+
+  if (st.w && !prevW){
+    currentEvent = { t: lastMsg, peak: st.a, lim: st.lim, dur: 0 };
+    history.unshift(currentEvent); saveHistory(); renderHistory();
+    startAlarm();
+  } else if (st.w && currentEvent){
+    if (st.a > currentEvent.peak) currentEvent.peak = st.a;
+  } else if (!st.w && prevW){
+    if (currentEvent){ currentEvent.dur = lastMsg - currentEvent.t; saveHistory(); renderHistory(); }
+    currentEvent = null;
+    stopAlarm();
+  }
+  document.body.classList.toggle("alarm", !!st.w);
+  render();
+}
+
+// ---------- commands ----------
+function send(cmd){
+  if (demo){ demo.command(cmd); return true; }
+  if (ws && ws.readyState === 1){ ws.send(cmd); return true; }
+  toast("Tidak bersambung ke pendakap / Not connected");
+  return false;
+}
+function setLimit(v){
+  v = Math.max(10, Math.min(150, Math.round(v)));
+  st.lim = v; limitSentAt = Date.now();
+  $("limSlider").value = v; $("limOut").textContent = v + "°";
+  markPresets(); drawGauge();
+  if (send("LIMIT:" + v)) toast("Had ditetapkan " + v + "° / Limit set");
+}
+var presetBtns = document.querySelectorAll(".presets button");
+for (var i = 0; i < presetBtns.length; i++){
+  presetBtns[i].onclick = function(){ setLimit(+this.dataset.lim); };
+}
+var slider = $("limSlider");
+slider.addEventListener("input", function(){ limitDragging = true; $("limOut").textContent = slider.value + "°"; });
+slider.addEventListener("change", function(){ limitDragging = false; setLimit(+slider.value); });
+$("btnZero").onclick = function(){
+  if (send("ZERO")){ sessionMax = 0; toast("Dikalibrasi: kaki lurus = 0° / Calibrated"); }
+};
+$("btnVib").onclick = function(){ if (send("VIB:700")) toast("Pendakap bergetar / Brace vibrating"); };
+$("autoSw").onchange = function(){
+  st.auto = this.checked ? 1 : 0;
+  send("AUTO:" + st.auto);
+};
+$("soundSw").onchange = function(){
+  try { localStorage.setItem(SET_KEY, this.checked ? "1" : "0"); } catch(e){}
+};
+
+// ---------- WebSocket ----------
+var params = new URLSearchParams(location.search);
+var isFile = location.protocol === "file:" || !location.hostname;
+var forceDemo = params.has("demo");
+var wsHost = params.get("ip") || location.hostname || "192.168.4.1";
+
+function connect(){
+  if (isFile || forceDemo) return;
+  try { ws = new WebSocket("ws://" + wsHost + ":81/"); }
+  catch(e){ onFail(); return; }
+  var opened = false;
+  ws.onopen = function(){
+    opened = true; connected = true; everConnected = true; failCount = 0; lastMsg = Date.now();
+    stopDemo();
+    setConn("on", "Bersambung / Connected");
+  };
+  ws.onmessage = function(ev){
+    try { onData(JSON.parse(ev.data)); } catch(e){}
+  };
+  ws.onclose = function(){
+    connected = false; ws = null;
+    if (!opened) onFail();
+    else setConn("off", "Terputus / Disconnected");
+    setTimeout(connect, 2000);
+  };
+  ws.onerror = function(){ try { ws && ws.close(); } catch(e){} };
+}
+function onFail(){
+  failCount++;
+  // Not served by the brace (e.g. opened on a computer) and nothing answers: show demo
+  if (!everConnected && wsHost !== "192.168.4.1" && failCount >= 1) startDemo();
+  else if (!demo) setConn("off", "Tiada sambungan / No connection");
+}
+// If data stops (brace switched off / out of range), show it
+setInterval(function(){
+  if (connected && Date.now() - lastMsg > 3000){
+    setConn("off", "Tiada data / No data");
+    try { ws.close(); } catch(e){}
+  }
+}, 1000);
+
+// ---------- demo mode (no brace) ----------
+function Demo(){
+  var t0 = Date.now(), zero = 0, raw = 0;
+  var lim = 45, auto = 1, warn = 0, overSince = 0;
+  this.command = function(c){
+    if (c.indexOf("LIMIT:") === 0){ lim = Math.max(5, Math.min(150, parseInt(c.slice(6), 10) || 45)); warn = 0; overSince = 0; }
+    else if (c === "ZERO"){ zero = raw; }
+    else if (c.indexOf("AUTO:") === 0){ auto = c.slice(5) === "1" ? 1 : 0; }
+    emit();
+  };
+  function emit(){
+    var a = Math.abs(raw - zero);
+    onData({ a: Math.round(a * 10) / 10, lim: lim, w: warn, auto: auto, err: "" });
+  }
+  this.timer = setInterval(function(){
+    var now = Date.now(), s = (now - t0) / 1000;
+    // slow walking-like bends, with a deeper bend every ~12 s
+    var bend = 18 + 16 * Math.sin(s * 1.3) + 6 * Math.sin(s * 3.1);
+    var cycle = s % 12;
+    if (cycle > 8 && cycle < 10) bend += 40 * Math.sin((cycle - 8) / 2 * Math.PI);
+    raw = Math.max(0, bend + (Math.random() - 0.5) * 1.5) + 4;
+    var a = Math.abs(raw - zero);
+    if (a > lim){
+      if (!overSince) overSince = now;
+      if (!warn && now - overSince >= 300) warn = 1;
+    } else {
+      overSince = 0;
+      if (warn && a < lim - 3) warn = 0;
+    }
+    emit();
+  }, 50);
+}
+function startDemo(){
+  if (demo) return;
+  demo = new Demo();
+  setConn("demo", "Mod demo / Demo mode");
+}
+function stopDemo(){
+  if (!demo) return;
+  clearInterval(demo.timer); demo = null;
+  document.body.classList.remove("alarm"); stopAlarm();
+}
+
+// ---------- start ----------
+renderHistory();
+render();
+(function loop(){ drawChart(); setTimeout(function(){ requestAnimationFrame(loop); }, 100); })();
+if (isFile || forceDemo) startDemo(); else connect();
+})();
+</script>
+</body>
+</html>
